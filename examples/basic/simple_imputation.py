@@ -26,6 +26,9 @@ def load_and_prepare_data(n_rows=None):
     if n_rows is not None:
         df_complete = df_complete.head(n_rows)
         
+    # The 'survived' column is an integer, but we'll treat it as categorical for this example.
+    df_complete['survived'] = df_complete['survived'].astype('category')
+
     # Create a copy that will have missing values introduced
     df_missing = df_complete.copy()
     
@@ -33,10 +36,6 @@ def load_and_prepare_data(n_rows=None):
     # In a real-world scenario, you would use your dataset that already has missing values.
     mask = np.random.rand(*df_missing.shape) < 0.15
     df_missing = df_missing.mask(mask)
-    
-    # The 'survived' column is an integer, but we'll treat it as categorical for this example.
-    df_missing['survived'] = df_missing['survived'].astype('category')
-    df_complete['survived'] = df_complete['survived'].astype('category')
     
     return df_missing, df_complete
 
@@ -54,7 +53,7 @@ def main():
     # Initialize imputer with conservative settings for quick example
     print("\nInitializing imputer...")
     imputer = Imputer(
-        num_iter=1,
+        num_iter=3,
         time_limit=30,
         presets=['medium_quality']
     )
@@ -74,6 +73,11 @@ def main():
             # Get true and imputed values
             true_vals = df_complete.loc[missing_mask, col]
             imputed_vals = df_imputed.loc[missing_mask, col]
+            
+            # Debug: Check if imputed values are constant
+            print(f"True values for {col}: min={true_vals.min():.4f}, max={true_vals.max():.4f}, mean={true_vals.mean():.4f}")
+            print(f"Imputed values for {col}: min={imputed_vals.min():.4f}, max={imputed_vals.max():.4f}, mean={imputed_vals.mean():.4f}")
+            print(f"Unique imputed values for {col}: {len(imputed_vals.unique())}")
             
             # Calculate correlation
             corr = np.corrcoef(true_vals, imputed_vals)[0, 1]

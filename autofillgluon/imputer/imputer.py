@@ -209,12 +209,12 @@ class Imputer:
                 self.col_data_types[col] = 'object'
                 mode_val = X_imputed[col].mode()
                 fill_value = mode_val[0] if len(mode_val) > 0 else 'Unknown'
-                X_imputed[col].fillna(fill_value, inplace=True)
+                X_imputed.loc[:, col] = X_imputed[col].fillna(fill_value)
                 self.initial_imputes[col] = fill_value
             else:
                 self.col_data_types[col] = 'numeric'
                 mean_value = X_imputed[col].mean()
-                X_imputed[col].fillna(mean_value, inplace=True)
+                X_imputed.loc[:, col] = X_imputed[col].fillna(mean_value)
                 self.initial_imputes[col] = mean_value
 
         return X_imputed
@@ -312,20 +312,13 @@ class Imputer:
             ).fit(
                 train_data,
                 time_limit=col_time_limit,
-                presets='good_quality',
-                verbosity=0,
-                num_bag_folds=0,
-                num_bag_sets=1,
-                num_stack_levels=0,
-                refit_full=False,
-                set_best_to_refit_full=False,
-                save_space=False,
-                fit_weighted_ensemble=False
+                presets=col_presets,
+                verbosity=0
             )
 
             # Impute missing values
             mask_missing = self.missing_cells[col]
-            if X_imputed[col].isnull().any():
+            if mask_missing.any():
                 X_imputed.loc[mask_missing, col] = predictor.predict(X_imputed.loc[mask_missing])
 
             return predictor
