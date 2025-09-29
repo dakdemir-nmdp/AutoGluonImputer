@@ -34,9 +34,7 @@ venv.bak/
 
 # AutoGluon and AutoFillGluon models
 AutogluonModels/
-*imputer*/
 *imputer_models*/
-*_imputer/
 autogluon_imputer_models/
 house_price_predictor/
 housing_imputer/
