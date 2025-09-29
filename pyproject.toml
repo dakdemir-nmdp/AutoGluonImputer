@@ -1,0 +1,117 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autofillgluon"
+version = "0.1.0"
+authors = [
+    {name = "Deniz Akdemir", email = "dakdemir@nmdp.org"},
+]
+description = "Machine learning-based missing data imputation using AutoGluon"
+readme = "readme.md"
+license = "MIT"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    # Core AutoGluon dependencies
+    "autogluon.tabular>=1.0.0",
+    "autogluon.core>=1.0.0",
+    # Data processing
+    "pandas>=2.0.0",
+    "numpy>=1.20.0",
+    "scikit-learn>=1.0.0",
+    "joblib>=1.0.0",
+    # Machine Learning models
+    "lightgbm>=4.0.0",
+    "xgboost>=2.0.0",
+    "catboost>=1.2.0",
+    # Deep Learning support
+    "torch>=2.0.0",
+    "fastai>=2.7.0",
+    # Distributed computing
+    "ray>=2.10.0,<2.45.0",
+    # Survival analysis
+    "lifelines>=0.27.0",
+    # Model interpretation and data processing
+    "shap>=0.40.0",
+    "pyreadstat>=1.2.0",
+    # Visualization (required for examples)
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+    "certifi>=2025.8.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pre-commit>=3.0.0",
+    "ruff>=0.1.0",
+]
+
+jupyter = [
+    "jupyter>=1.0.0",
+    "notebook>=6.5.0",
+    "ipywidgets>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/dakdemir-nmdp/AutoGluonImputer"
+"Bug Tracker" = "https://github.com/dakdemir-nmdp/AutoGluonImputer/issues"
+Documentation = "https://github.com/dakdemir-nmdp/AutoGluonImputer#readme"
+Repository = "https://github.com/dakdemir-nmdp/AutoGluonImputer"
+
+[dependency-groups]
+dev = [
+    "pytest>=6.0.0",
+    "pytest-cov>=2.10.0",
+    "black>=20.8b1",
+    "isort>=5.0.0",
+    "flake8>=3.8.0",
+    "mypy>=1.0.0",
+    "ruff>=0.13.2",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+testpaths = [
+    "tests",
+]

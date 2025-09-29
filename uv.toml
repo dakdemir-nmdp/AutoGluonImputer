@@ -1,0 +1,14 @@
+# Global uv configuration for AutoFillGluon
+
+# Use manual Python downloads
+python-downloads = "manual"
+
+# Index configuration - use PyPI by default
+index-url = "https://pypi.org/simple"
+
+# Dependency resolution preferences
+resolution = "highest"
+prerelease = "disallow"
+
+# Cache configuration
+cache-keys = ["python", "platform", "interpreter"]
