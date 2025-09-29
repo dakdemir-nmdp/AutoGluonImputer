@@ -3,7 +3,8 @@ Simple imputation example showing basic usage of AutoFillGluon.
 """
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from autofillgluon import Imputer
 from autofillgluon.utils import calculate_missingness_statistics
@@ -11,45 +12,38 @@ from autofillgluon.utils import calculate_missingness_statistics
 # Set random seed for reproducibility
 np.random.seed(42)
 
-def create_example_data(n_rows=200):
-    """Create example data with some missing values."""
-    # Create a dataframe with some correlation between columns
-    df = pd.DataFrame({
-        'age': np.random.normal(40, 10, n_rows),
-        'income': np.random.normal(50000, 15000, n_rows),
-        'experience': np.random.normal(15, 7, n_rows),
-        'satisfaction': np.random.choice(['Low', 'Medium', 'High'], n_rows),
-        'department': np.random.choice(['HR', 'Engineering', 'Sales', 'Marketing', 'Support'], n_rows)
-    })
+def load_and_prepare_data(n_rows=None):
+    """Load the Titanic dataset and prepare it for the imputation example."""
+    # Load the Titanic dataset
+    titanic = sns.load_dataset('titanic')
     
-    # Add some correlations
-    df['experience'] = df['age'] * 0.4 + np.random.normal(0, 3, n_rows)
-    df['income'] = 20000 + df['experience'] * 2000 + np.random.normal(0, 5000, n_rows)
+    # Select a subset of columns for the example
+    cols_to_use = ['age', 'fare', 'sex', 'class', 'embarked', 'survived']
     
-    # Add categorical biases
-    df.loc[df['department'] == 'Engineering', 'income'] += 10000
-    df.loc[df['department'] == 'Sales', 'income'] += 5000
+    # For evaluation purposes, we create a "complete" dataset by dropping rows with any missing values.
+    df_complete = titanic[cols_to_use].dropna().reset_index(drop=True)
     
-    # Ensure proper data types
-    df['satisfaction'] = df['satisfaction'].astype('category')
-    df['department'] = df['department'].astype('category')
+    if n_rows is not None:
+        df_complete = df_complete.head(n_rows)
+        
+    # Create a copy that will have missing values introduced
+    df_missing = df_complete.copy()
     
-    # Create a complete copy before adding missing values
-    df_complete = df.copy()
+    # Introduce missingness artificially to demonstrate and evaluate the imputer.
+    # In a real-world scenario, you would use your dataset that already has missing values.
+    mask = np.random.rand(*df_missing.shape) < 0.15
+    df_missing = df_missing.mask(mask)
     
-    # Add some missingness
-    mask = np.random.random(df.shape) < 0.15
-    for i in range(df.shape[0]):
-        for j in range(df.shape[1]):
-            if mask[i, j]:
-                df.iloc[i, j] = np.nan
+    # The 'survived' column is an integer, but we'll treat it as categorical for this example.
+    df_missing['survived'] = df_missing['survived'].astype('category')
+    df_complete['survived'] = df_complete['survived'].astype('category')
     
-    return df, df_complete
+    return df_missing, df_complete
 
 def main():
     # Generate example data
-    print("Generating example data...")
-    df_missing, df_complete = create_example_data(200)
+    print("Loading and preparing example data...")
+    df_missing, df_complete = load_and_prepare_data(200)
     
     # Show missingness statistics
     missing_stats = calculate_missingness_statistics(df_missing)
@@ -73,7 +67,7 @@ def main():
     print("\nEvaluating imputation quality...")
     
     # For numeric columns, we can calculate correlation
-    for col in ['age', 'income', 'experience']:
+    for col in ['age', 'fare']:
         # Find indices with missing values in the original data
         missing_mask = df_missing[col].isnull()
         if missing_mask.sum() > 0:
@@ -90,7 +84,7 @@ def main():
             print(f"Mean absolute error for {col}: {mae:.4f}")
     
     # For categorical columns, we can calculate accuracy
-    for col in ['satisfaction', 'department']:
+    for col in ['sex', 'class', 'embarked', 'survived']:
         # Find indices with missing values in the original data
         missing_mask = df_missing[col].isnull()
         if missing_mask.sum() > 0:
